@@ -153,10 +153,16 @@ $env:Path = \"$project_bin;$env:Path\"
   if (MINGW OR CYGWIN)
     if (CMAKE_VERSION VERSION_LESS "2.8.12")
       add_compile_options("-Wa,-mbig-obj")
+      add_compile_options("-fPIC")
+
     else()
       add_definitions("-Wa,-mbig-obj")
+      add_compile_options(-fPIC)
     endif()
   endif()
+      add_compile_options(-fPIC)
+
+
 
   ############################################################
   # C++ tests built with standard compiler flags.
@@ -230,3 +236,8 @@ $env:Path = \"$project_bin;$env:Path\"
   cxx_executable(gmock_output_test_ test gmock)
   py_test(gmock_output_test)
 endif()
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -fpic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fpic")
