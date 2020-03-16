@@ -10,6 +10,54 @@
 
 # When other libraries are using a shared version of runtime libraries,
 # Google Test also has to use one.
+
+
+##set for ios,
+# Standard settings
+set (IOS True)
+
+
+# Setup iOS platform
+if (NOT DEFINED IOS_PLATFORM)
+  set (IOS_PLATFORM "OS")
+endif (NOT DEFINED IOS_PLATFORM)
+set (IOS_PLATFORM ${IOS_PLATFORM} CACHE STRING "Type of iOS Platform")
+
+# Check the platform selection and setup for developer root
+if (${IOS_PLATFORM} STREQUAL "OS")
+  set (IOS_PLATFORM_LOCATION "iPhoneOS.platform")
+elseif (${IOS_PLATFORM} STREQUAL "SIMULATOR")
+  set (IOS_PLATFORM_LOCATION "iPhoneSimulator.platform")
+else (${IOS_PLATFORM} STREQUAL "OS")
+  message (FATAL_ERROR "Unsupported IOS_PLATFORM value selected. Please choose OS or SIMULATOR")
+endif (${IOS_PLATFORM} STREQUAL "OS")
+
+# Setup iOS developer location
+if (NOT DEFINED CMAKE_IOS_DEVELOPER_ROOT)
+  set (CMAKE_IOS_DEVELOPER_ROOT "/opt/toolchain/xcode/11.2.app/Xcode.app/Contents/Developer/Platforms/${IOS_PLATFORM_LOCATION}/Developer")
+endif (NOT DEFINED CMAKE_IOS_DEVELOPER_ROOT)
+set (CMAKE_IOS_DEVELOPER_ROOT ${CMAKE_IOS_DEVELOPER_ROOT} CACHE PATH "Location of iOS Platform")
+
+# Find and use the most recent iOS sdk 
+if (NOT DEFINED CMAKE_IOS_SDK_ROOT)
+  file (GLOB _CMAKE_IOS_SDKS "${CMAKE_IOS_DEVELOPER_ROOT}/SDKs/*")
+  if (_CMAKE_IOS_SDKS) 
+    list (SORT _CMAKE_IOS_SDKS)
+    list (REVERSE _CMAKE_IOS_SDKS)
+    list (GET _CMAKE_IOS_SDKS 0 CMAKE_IOS_SDK_ROOT)
+  else (_CMAKE_IOS_SDKS)
+    message (FATAL_ERROR "No iOS SDK's found in default seach path ${CMAKE_IOS_DEVELOPER_ROOT}. Manually set CMAKE_IOS_SDK_ROOT or install the iOS SDK.")
+  endif (_CMAKE_IOS_SDKS)
+  message (STATUS "Toolchain using default iOS SDK: ${CMAKE_IOS_SDK_ROOT}")
+endif (NOT DEFINED CMAKE_IOS_SDK_ROOT)
+set (CMAKE_IOS_SDK_ROOT ${CMAKE_IOS_SDK_ROOT} CACHE PATH "Location of the selected iOS SDK")
+
+# Set the sysroot default to the most recent SDK
+set (CMAKE_OSX_SYSROOT ${CMAKE_IOS_SDK_ROOT} CACHE PATH "Sysroot used for iOS support")
+
+set (CMAKE_OSX_ARCHITECTURES "arm64" CACHE string  "Build architecture for iOS")
+
+##ori content
 option(
   gtest_force_shared_crt
   "Use shared (DLL) run-time lib even when Google Test is built as static lib."
@@ -327,3 +375,12 @@ $env:Path = \"$project_bin;$env:Path\"
   py_test(gtest_xml_output_unittest --no_stacktrace_support)
   py_test(googletest-json-output-unittest --no_stacktrace_support)
 endif()
+
+
+##for mac build, to fix complier error
+add_definitions(-std=c++11)
+
+
+
+
+
