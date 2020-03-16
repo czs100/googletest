@@ -377,10 +377,11 @@ $env:Path = \"$project_bin;$env:Path\"
 endif()
 
 
-##for mac build, to fix complier error
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+##set fpic for linux fix jenkins compile error
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  -fpic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fpic")
+
+##set for mac build, otherwise report compile error
 add_definitions(-std=c++11)
-
-
-
-
-
